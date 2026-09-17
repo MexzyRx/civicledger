@@ -1,0 +1,5 @@
+"use client";
+import { useMemo, useState } from "react";
+import { promises } from "@/lib/data";
+import { PromiseCard } from "@/components/ui";
+export default function Promises(){const [query,setQuery]=useState("");const [sector,setSector]=useState("All");const visible=useMemo(()=>promises.filter(p=>(sector==="All"||p.sector===sector)&&p.title.toLowerCase().includes(query.toLowerCase())),[query,sector]);return <div className="page"><div className="page-intro"><span className="kicker">The commitments register</span><h1>Promises</h1><p>Explore commitments affecting Port Harcourt City and inspect the evidence behind every status.</p></div><div className="filters"><input aria-label="Search promises" placeholder="Search promises…" value={query} onChange={e=>setQuery(e.target.value)}/><select aria-label="Filter by sector" value={sector} onChange={e=>setSector(e.target.value)}><option>All</option><option>Education</option><option>Healthcare</option><option>Infrastructure</option></select><span>{visible.length} records</span></div><div className="card-grid">{visible.map(p=><PromiseCard key={p.slug} promise={p}/>)}</div></div>}
