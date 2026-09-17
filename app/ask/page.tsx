@@ -1,7 +1,49 @@
 "use client";
+
 import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { promises, projects } from "@/lib/data";
-type Result={answer:string;citations:{label:string;href:string}[]};
-function answer(q:string):Result{const x=q.toLowerCase();if(x.includes("education")&&(x.includes("outstanding")||x.includes("promise"))){const p=promises.find(y=>y.sector==="Education")!;return {answer:`CivicLedger tracks one education promise affecting Port Harcourt City: “${p.title}.” Its status is ${p.status} with ${p.confidence.toLowerCase()} confidence. The commitment is documented, but no sufficiently specific implementation project has been verified.`,citations:[{label:`Promise: ${p.title}`,href:`/promises/${p.slug}`}]}}if(x.includes("ring road")||x.includes("infrastructure")){const p=projects[0];return {answer:`The ${p.name} is reported as ${p.status} at ${p.progress}% verified progress. CivicLedger found active works supported by a state update and independent reporting, but the road is not yet open end-to-end.`,citations:[{label:`Project: ${p.name}`,href:`/projects/${p.slug}`},{label:"Connected promise",href:"/promises/complete-ring-road"}]}}if(x.includes("health")||x.includes("clinic")){const p=promises[1];return {answer:`The primary healthcare upgrade commitment is ${p.status}. Several facilities have evidence of completion, but the wider programme timeline was changed to phased delivery and facility-level reporting remains incomplete.`,citations:[{label:`Promise: ${p.title}`,href:`/promises/${p.slug}`},{label:"Orogbum PHC project",href:"/projects/primary-health-centre-upgrade"}]}}return {answer:"CivicLedger does not have enough evidence yet to answer that question. Try asking about education promises, primary healthcare or the Port Harcourt Ring Road.",citations:[]}}
-export default function Ask(){const [query,setQuery]=useState("");const [result,setResult]=useState<Result|null>(null);function submit(e:FormEvent){e.preventDefault();setResult(answer(query))}return <div className="ask-page"><div className="page-intro"><span className="kicker">Grounded civic search</span><h1>Ask CivicLedger</h1><p>Ask a question about tracked promises and projects. Every answer stays within the public record.</p></div><form onSubmit={submit} className="ask-box"><input autoFocus required value={query} onChange={e=>setQuery(e.target.value)} placeholder="Which education promises are still outstanding?"/><button className="button">Ask →</button></form><div className="suggestions"><span>Try:</span>{["Which education promises are still outstanding?","What is happening with the Ring Road?","Were healthcare targets changed?"].map(x=><button key={x} onClick={()=>{setQuery(x);setResult(answer(x))}}>{x}</button>)}</div>{result&&<article className="answer"><div className="answer-mark">CL</div><div><span className="kicker">Answer from {result.citations.length||0} CivicLedger records</span><p>{result.answer}</p>{result.citations.length>0&&<div className="citations"><strong>Sources</strong>{result.citations.map((x,i)=><Link key={x.href} href={x.href}><span>{i+1}</span>{x.label} →</Link>)}</div>}<p className="note">CivicLedger explains available records. It does not judge whether a leader is good or bad or infer wrongdoing.</p></div></article>}</div>}
+import "./chat.css";
+
+type Message = { role: "user" | "assistant"; content: string; mode?: "ai" | "fallback" };
+
+const starters = ["Which education promises are still outstanding?", "What is happening with the Ring Road?", "Were healthcare targets changed?"];
+
+function relatedSources(question: string) {
+  const q = question.toLowerCase();
+  if (q.includes("education") || q.includes("school")) return [{ label: "Rehabilitate public primary schools", href: "/promises/rehabilitate-public-schools" }];
+  if (q.includes("health") || q.includes("clinic")) return [{ label: "Upgrade primary healthcare facilities", href: "/promises/upgrade-primary-healthcare" }];
+  if (q.includes("ring road") || q.includes("infrastructure")) return [{ label: "Port Harcourt Ring Road project", href: "/projects/port-harcourt-ring-road" }, { label: "Connected promise", href: "/promises/complete-ring-road" }];
+  return [];
+}
+
+export default function Ask() {
+  const [query, setQuery] = useState("");
+  const [messages, setMessages] = useState<Message[]>([{ role: "assistant", content: "Ask me about the promises and projects CivicLedger currently tracks in Port Harcourt City." }]);
+  const [loading, setLoading] = useState(false);
+  const [lastQuestion, setLastQuestion] = useState("");
+
+  async function ask(question: string) {
+    const clean = question.trim();
+    if (!clean || loading) return;
+    const next: Message[] = [...messages, { role: "user", content: clean }];
+    setMessages(next);
+    setQuery("");
+    setLastQuestion(clean);
+    setLoading(true);
+    try {
+      const response = await fetch("/api/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: next.map(({ role, content }) => ({ role, content })) }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Unable to answer");
+      setMessages(current => [...current, { role: "assistant", content: data.answer, mode: data.mode }]);
+    } catch {
+      setMessages(current => [...current, { role: "assistant", content: "Ask CivicLedger is temporarily unavailable. Please try again shortly.", mode: "fallback" }]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function submit(event: FormEvent) { event.preventDefault(); void ask(query); }
+  const sources = relatedSources(lastQuestion);
+
+  return <div className="ask-page"><div className="page-intro"><span className="kicker">Grounded civic chatbot</span><h1>Ask CivicLedger</h1><p>Have a short conversation about tracked promises, projects and evidence. Answers stay within the CivicLedger record.</p></div><div className="chat-panel"><div className="chat-messages" aria-live="polite">{messages.map((message, index) => <div key={`${message.role}-${index}`} className={`chat-message ${message.role}`}><span>{message.role === "assistant" ? "CL" : "You"}</span><div><p>{message.content}</p>{message.mode === "fallback" && <small>Using CivicLedger’s built-in evidence lookup</small>}</div></div>)}{loading && <div className="chat-message assistant"><span>CL</span><div><p className="typing">Reviewing the ledger…</p></div></div>}</div>{sources.length > 0 && !loading && <div className="chat-sources"><strong>Relevant records</strong>{sources.map(source => <Link key={source.href} href={source.href}>{source.label} →</Link>)}</div>}<form onSubmit={submit} className="ask-box"><input required maxLength={800} value={query} onChange={event => setQuery(event.target.value)} placeholder="Ask about a promise, project or evidence…"/><button className="button" disabled={loading}>{loading ? "Thinking…" : "Ask →"}</button></form></div><div className="suggestions"><span>Try:</span>{starters.map(starter => <button key={starter} disabled={loading} onClick={() => void ask(starter)}>{starter}</button>)}</div><p className="note">Ask CivicLedger can explain available records. It does not judge leaders or infer wrongdoing. This hackathon dataset is for demonstration and must be source-verified before public use.</p></div>;
+}
