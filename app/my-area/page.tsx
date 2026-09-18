@@ -1,5 +1,25 @@
 import Link from "next/link";
-import { leaders, promises, projects } from "@/lib/data";
-import { PromiseCard, ProjectCard } from "@/components/ui";
+import { promises, representatives } from "@/lib/data";
+import { RepresentativeCard } from "@/components/ui";
 
-export default function MyArea(){return <div className="page"><div className="page-intro"><span className="kicker">Rivers State · Port Harcourt City LGA</span><h1>Your area at a glance</h1><p>See who is responsible, what was promised and what the available evidence supports.</p></div><div className="stats"><div><strong>{leaders.length}</strong><span>relevant leaders</span></div><div><strong>{promises.length}</strong><span>promises tracked</span></div><div><strong>{projects.length}</strong><span>projects identified</span></div><div><strong>{projects.reduce((n,p)=>n+p.evidence.length,0)}</strong><span>sources reviewed</span></div></div><section className="subsection"><div className="section-heading"><h2>Who represents this area?</h2></div><div className="leader-grid">{leaders.map(l=><article key={l.role} className="leader"><span>{l.level}</span><div className="avatar">{l.name.split(" ").map(x=>x[0]).slice(0,2).join("")}</div><h3>{l.name}</h3><strong>{l.role}</strong><p>{l.responsibility}</p></article>)}</div></section><section className="subsection"><div className="section-heading"><h2>Promises affecting your area</h2><Link href="/promises">Explore all →</Link></div><div className="card-grid">{promises.slice(0,3).map(p=><PromiseCard key={p.slug} promise={p}/>)}</div></section><section className="subsection"><div className="section-heading"><h2>Projects on the ground</h2></div><div className="card-grid">{projects.map(p=><ProjectCard key={p.slug} project={p}/>)}</div></section></div>}
+const levels = [
+  { key: "Federal", title: "Federal Government", note: "National and constituency representation" },
+  { key: "State", title: "Rivers State", note: "State executive and legislative representation" },
+  { key: "Local", title: "Port Harcourt City LGA", note: "Local government and Ward 6 representation" }
+] as const;
+
+export default function MyArea(){
+  const completed=promises.filter(item=>item.status==="Completed").length;
+  const inProgress=promises.filter(item=>item.status==="In Progress").length;
+  const insufficient=promises.filter(item=>item.status==="Insufficient Evidence").length;
+  return <div className="area-page">
+    <section className="area-hero">
+      <div><span className="kicker">Your area</span><h1>Port Harcourt City</h1><strong>Rivers State, Nigeria</strong><p>Know who represents you. See what they promised. Follow the evidence.</p><div className="location-actions"><Link href="/" className="location-button">⌖ <span>Change location</span>⌄</Link><span>Rivers State <b>/</b> Port Harcourt City <b>/</b> Ward 6</span></div></div>
+      <div className="city-mark" aria-hidden="true"><span>PH</span><i>6</i></div>
+    </section>
+    <div className="area-shell">
+      <main><div className="area-title" id="representatives"><div><span className="kicker">Location-resolved</span><h2>Your representatives</h2><p>The 10 public officials connected to where you live.</p></div><Link href="/representatives">View all representatives →</Link></div><div className="government-groups">{levels.map(level=><section className="government-group" key={level.key}><header><div><span className="government-icon" aria-hidden="true">{level.key==="Federal"?"▥":level.key==="State"?"◆":"◎"}</span><div><h3>{level.title}</h3><p>{level.note}</p></div></div><span>{representatives.filter(item=>item.level===level.key).length} representatives</span></header><div className="representative-grid">{representatives.filter(item=>item.level===level.key).map(item=><RepresentativeCard key={item.slug} representative={item}/>)}</div></section>)}</div></main>
+      <aside className="area-sidebar"><section className="snapshot"><div className="snapshot-head"><span aria-hidden="true">▥</span><div><h2>Area accountability snapshot</h2><p>A quick view of commitments across your representatives.</p></div></div><dl><div><dt>{representatives.length}</dt><dd>representatives</dd></div><div><dt>{promises.length}</dt><dd>promises tracked</dd></div><div><dt>{completed}</dt><dd>completed</dd></div><div><dt>{inProgress}</dt><dd>in progress</dd></div><div><dt>{insufficient}</dt><dd>insufficient evidence</dd></div></dl><Link href="/methodology">How we verify progress <span>→</span></Link></section><section className="civic-note"><span aria-hidden="true">◉</span><h2>Informed citizens.<br/>Stronger communities.</h2><p>CivicLedger helps you hold public officials to account—with evidence, not partisan scores.</p></section></aside>
+    </div>
+  </div>
+}
