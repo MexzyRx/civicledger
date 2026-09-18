@@ -1,8 +1,9 @@
+import { demoPromises } from "./demo-promises";
 export type Status = "Completed" | "In Progress" | "Not Started" | "Modified" | "Broken / Abandoned" | "Insufficient Evidence";
 export type Confidence = "High" | "Medium" | "Low" | "Unrated";
 export type Evidence = { id:string; type:string; title:string; publisher:string; date:string; url:string; excerpt:string };
 export type Project = { slug:string; name:string; description:string; location:string; status:Status; promiseSlug?:string; unpromised?:boolean; progress:number; budget?:string; fundedBy:string; implementedBy:string; contractor?:string; evidence:Evidence[] };
-export type PromiseRecord = { slug:string; title:string; quote:string; source:string; sourceUrl:string; published:string; sector:string; level:string; leader:string; officialSlugs:string[]; location:string; status:Status; confidence:Confidence; progress:number; updated:string; why:string; projectSlugs:string[]; change?:{previous:string;current:string;reason:string;date:string;source:string} };
+export type PromiseRecord = { origin?:"simulated"|"sourced"; target?:string; slug:string; title:string; quote:string; source:string; sourceUrl:string; published:string; sector:string; level:string; leader:string; officialSlugs:string[]; location:string; status:Status; confidence:Confidence; progress:number; updated:string; why:string; projectSlugs:string[]; change?:{previous:string;current:string;reason:string;date:string;source:string} };
 
 export type Representative = {
   slug:string;
@@ -48,6 +49,35 @@ export const promises: PromiseRecord[] = [
  {slug:"constituency-skills-centres",title:"Support constituency skills centres",quote:"Young people in the constituency will have better access to practical skills and employment support.",source:"Constituency campaign statement",sourceUrl:"https://nass.gov.ng/",published:"2023-01-24",sector:"Education",level:"Federal",leader:"Port Harcourt Federal Constituency II office",officialSlugs:["ph-federal-representative"],location:"Port Harcourt Federal Constituency II",status:"Insufficient Evidence",confidence:"Low",progress:15,updated:"2026-09-06",why:"The commitment is documented, but CivicLedger has not found sufficiently specific implementation records to assess delivery.",projectSlugs:[]},
  {slug:"ward-drainage-maintenance",title:"Improve routine drainage maintenance",quote:"We will keep priority drains clear and respond faster to flooding risks.",source:"Local campaign commitment",sourceUrl:"https://www.riversstate.gov.ng/",published:"2024-09-01",sector:"Infrastructure",level:"Local",leader:"Port Harcourt City LGA administration",officialSlugs:["ph-chairman","ph-vice-chairman","ward-6-councillor"],location:"Port Harcourt City",status:"In Progress",confidence:"Low",progress:32,updated:"2026-09-07",why:"Some local interventions have been announced, but coverage, completion and ward-level evidence remain incomplete.",projectSlugs:["waterfront-drainage-repair"]}
 ];
+
+promises.push(...demoPromises);
+for (const record of promises) {
+  record.origin ??= "simulated";
+  record.confidence = "Unrated";
+  if (record.origin === "simulated") {
+    record.source = "Simulated campaign scenario";
+    record.sourceUrl = "";
+    record.why = "Illustrative hackathon scenario. This commitment and its fulfilment assessment are simulated, not verified political claims.";
+    if (record.change) record.change.source = "Simulated change record";
+  }
+}
+const studentLoan = promises.find(record => record.slug === "student-loan-access");
+const drainagePromise = promises.find(record => record.slug === "ward-drainage-maintenance");
+if (drainagePromise) drainagePromise.projectSlugs = [];
+if (studentLoan) Object.assign(studentLoan, {
+  origin: "sourced", quote: "Introduce a pilot student-loan programme and expand access to education.",
+  source: "APC Renewed Hope manifesto (2023 election)", sourceUrl: "https://www.apc.com.ng/img/apc_renewed_hope.pdf",
+  published: "2022", target: "Pilot a student-loan programme; manifesto commitment paraphrased, not a verbatim quote.",
+  why: "The student-loan commitment is drawn from the APC manifesto. The 58% progress and In Progress status are simulated for the hackathon, not an evidence-backed assessment."
+});
+
+const primaryCare = promises.find(record => record.slug === "federal-primary-care");
+if (primaryCare) Object.assign(primaryCare, {
+  origin: "sourced", quote: "Make primary healthcare the foundation of the health system and strengthen early detection and treatment.",
+  source: "APC Renewed Hope manifesto (2023 election)", sourceUrl: "https://www.apc.com.ng/img/apc_renewed_hope.pdf",
+  published: "2022", target: "Strengthen primary healthcare. The 100-facility pilot target used in this demo is simulated, not a manifesto target.",
+  why: "The broad primary-healthcare commitment is paraphrased from the APC manifesto. The 62% progress, status and pilot target are simulated, not verified delivery claims."
+});
 
 export function getPromise(slug:string){return promises.find(p=>p.slug===slug)}
 export function getProject(slug:string){return projects.find(p=>p.slug===slug)}

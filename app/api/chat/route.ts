@@ -4,16 +4,16 @@ import { promises, projects } from "@/lib/data";
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const civicContext = JSON.stringify({
-  promises: promises.map(({ slug, title, quote, sector, level, leader, location, status, confidence, progress, why, projectSlugs, change }) => ({ slug, title, quote, sector, level, leader, location, status, confidence, progress, why, projectSlugs, change })),
+  promises: promises.map(({ slug, title, quote, sector, level, leader, location, status, confidence, progress, why, projectSlugs, change, origin, target, sourceUrl, officialSlugs }) => ({ slug, title, quote, sector, level, leader, location, status, confidence, progress, why, projectSlugs, change, origin, target, sourceUrl, officialSlugs })),
   projects: projects.map(({ slug, name, description, location, status, promiseSlug, unpromised, progress, budget, fundedBy, implementedBy, contractor, evidence }) => ({ slug, name, description, location, status, promiseSlug, unpromised, progress, budget, fundedBy, implementedBy, contractor, evidence })),
 });
 
 function fallback(question: string) {
   const q = question.toLowerCase();
-  if (q.includes("education") || q.includes("school")) return "CivicLedger tracks one education promise affecting Port Harcourt City: “Rehabilitate public primary schools.” It currently has Insufficient Evidence and low confidence because no sufficiently specific implementation project has been verified.";
-  if (q.includes("ring road") || q.includes("infrastructure")) return "The Port Harcourt Ring Road is marked In Progress at 46% verified progress. CivicLedger has two supporting records, but the road is not yet documented as open end-to-end.";
-  if (q.includes("health") || q.includes("clinic")) return "The primary healthcare upgrade promise is marked Modified. Several facilities have completion evidence, but the wider programme moved to phased delivery and facility-level reporting remains incomplete.";
-  return "CivicLedger does not have enough evidence yet to answer that question. Try asking about education, primary healthcare, the Port Harcourt Ring Road, or how CivicLedger assesses evidence.";
+  const sector = q.includes("health") || q.includes("clinic") ? "Healthcare" : q.includes("education") || q.includes("school") ? "Education" : q.includes("road") || q.includes("infrastructure") ? "Infrastructure" : undefined;
+  const matching = promises.filter(p => sector ? p.sector === sector : q.includes(p.title.toLowerCase()));
+  if (matching.length) return "These are simulated hackathon assessments, not verified political claims. " + matching.slice(0,3).map(p => `${p.title}: ${p.status}, ${p.progress}% simulated progress. Open /promises/${p.slug}.`).join(" ");
+  return "CivicLedger does not have enough evidence yet. Explore an official profile for simulated campaign commitments and delivery statistics.";
 }
 
 export async function POST(request: Request) {
@@ -31,7 +31,7 @@ export async function POST(request: Request) {
 
     const { text } = await generateText({
       model: "openai/gpt-5.4-mini",
-      system: `You are Ask CivicLedger, a concise civic-information assistant for Port Harcourt City, Rivers State. Answer only from the CIVICLEDGER RECORDS below. Use plain, neutral language and keep answers under 140 words. Never assess whether a politician is good or bad. Never allege corruption, crime, intent, or wrongdoing. Distinguish who promised, funded and implemented a project. State uncertainty clearly. If the records cannot support an answer, say exactly: “CivicLedger does not have enough evidence yet.” When useful, mention the record title the citizen should open.\n\nCIVICLEDGER RECORDS:\n${civicContext}`,
+      system: `You are Ask CivicLedger, a concise civic-information assistant for Port Harcourt City, Rivers State. Answer only from the CIVICLEDGER RECORDS below. All progress, statuses, project evidence and fulfilment assessments are SIMULATED hackathon scenarios, not verified political claims. Always disclose this when discussing delivery. Only commitments marked origin=sourced have a real public source; others are invented examples, not actual statements by those officials. Use plain, neutral language and keep answers under 140 words. Never assess whether a politician is good or bad. Never allege corruption, crime, intent, or wrongdoing. Distinguish who promised, funded and implemented a project. State uncertainty clearly. If the records cannot support an answer, say exactly: “CivicLedger does not have enough evidence yet.” When useful, mention the record title the citizen should open.\n\nCIVICLEDGER RECORDS:\n${civicContext}`,
       messages,
       maxOutputTokens: 240,
       providerOptions: { gateway: { tags: ["feature:ask-civicledger", "dataset:demo"] } },
