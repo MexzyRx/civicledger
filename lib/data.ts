@@ -3,7 +3,7 @@ export type Status = "Completed" | "In Progress" | "Not Started" | "Modified" | 
 export type Confidence = "High" | "Medium" | "Low" | "Unrated";
 export type Evidence = { id:string; type:string; title:string; publisher:string; date:string; url:string; excerpt:string };
 export type Project = { slug:string; name:string; description:string; location:string; status:Status; promiseSlug?:string; unpromised?:boolean; progress:number; budget?:string; fundedBy:string; implementedBy:string; contractor?:string; evidence:Evidence[] };
-export type PromiseRecord = { origin?:"simulated"|"sourced"; target?:string; slug:string; title:string; quote:string; source:string; sourceUrl:string; published:string; sector:string; level:string; leader:string; officialSlugs:string[]; location:string; status:Status; confidence:Confidence; progress:number; updated:string; why:string; projectSlugs:string[]; change?:{previous:string;current:string;reason:string;date:string;source:string} };
+export type PromiseRecord = { origin?:"simulated"|"sourced"; target?:string; sourcePage?:string; slug:string; title:string; quote:string; source:string; sourceUrl:string; published:string; sector:string; level:string; leader:string; officialSlugs:string[]; location:string; status:Status; confidence:Confidence; progress:number; updated:string; why:string; projectSlugs:string[]; change?:{previous:string;current:string;reason:string;date:string;source:string} };
 
 export type Representative = {
   slug:string;
@@ -62,23 +62,50 @@ for (const record of promises) {
     if (record.change) record.change.source = "Simulated change record";
   }
 }
-const studentLoan = promises.find(record => record.slug === "student-loan-access");
 const drainagePromise = promises.find(record => record.slug === "ward-drainage-maintenance");
 if (drainagePromise) drainagePromise.projectSlugs = [];
-if (studentLoan) Object.assign(studentLoan, {
-  origin: "sourced", quote: "Introduce a pilot student-loan programme and expand access to education.",
-  source: "APC Renewed Hope manifesto (2023 election)", sourceUrl: "https://www.apc.com.ng/img/apc_renewed_hope.pdf",
-  published: "2022", target: "Pilot a student-loan programme; manifesto commitment paraphrased, not a verbatim quote.",
-  why: "The student-loan commitment is drawn from the APC manifesto. The 58% progress and In Progress status are simulated for the hackathon, not an evidence-backed assessment."
-});
-
-const primaryCare = promises.find(record => record.slug === "federal-primary-care");
-if (primaryCare) Object.assign(primaryCare, {
-  origin: "sourced", quote: "Make primary healthcare the foundation of the health system and strengthen early detection and treatment.",
-  source: "APC Renewed Hope manifesto (2023 election)", sourceUrl: "https://www.apc.com.ng/img/apc_renewed_hope.pdf",
-  published: "2022", target: "Strengthen primary healthcare. The 100-facility pilot target used in this demo is simulated, not a manifesto target.",
-  why: "The broad primary-healthcare commitment is paraphrased from the APC manifesto. The 62% progress, status and pilot target are simulated, not verified delivery claims."
-});
+const manifestoSource = {
+  origin: "sourced" as const,
+  source: "Renewed Hope: Action Plan for a Better Nigeria",
+  sourceUrl: "https://www.apc.com.ng/img/apc_renewed_hope.pdf",
+  published: "2022-10-20"
+};
+const manifestoPromises: Record<string, Partial<PromiseRecord>> = {
+  "student-loan-access": {
+    title: "Introduce a pilot student-loan programme",
+    quote: "Establish a pilot student-loan regime modelled on programmes in Lagos and Kaduna, with borrowing limits and flexible repayment.",
+    sourcePage: "Manifesto p. 44", target: "Pilot a student-loan programme that expands access regardless of background.",
+    why: "This commitment is paraphrased from the manifesto. The In Progress status and 58% figure are simulated for the hackathon, not an evidence-backed delivery assessment."
+  },
+  "federal-primary-care": {
+    title: "Strengthen the national primary healthcare network",
+    quote: "Keep primary healthcare at the foundation of the system and expand static and mobile local clinics.",
+    sourcePage: "Manifesto p. 46", target: "Work with states to ensure no person lives more than 3km or a 30-minute walk from a primary facility.",
+    why: "This commitment and proximity target are drawn from the manifesto. The In Progress status and 62% figure are simulated, not verified delivery claims."
+  },
+  "federal-affordable-housing": {
+    title: "Create pathways to affordable home ownership",
+    quote: "Support affordable housing projects and provide pathways for poorer Nigerians to climb onto the housing ladder.",
+    sourcePage: "Manifesto p. 25", target: "Create a social-housing policy and provide eligible civil servants with guarantees for fixed-rate, long-term mortgages.",
+    why: "This commitment is paraphrased from the manifesto. The Modified status, revised pilot and 45% figure are simulated for the hackathon."
+  },
+  "federal-digital-skills": {
+    title: "Create one million new ICT jobs",
+    quote: "Use interventions in ICT and technology-enabled sectors to create one million new jobs.",
+    sector: "Economy", sourcePage: "Manifesto p. 49", target: "Create one million new ICT-sector jobs within the first 24 months in office.",
+    why: "The one-million-job target and 24-month timeframe are stated in the manifesto. The Completed status and 100% figure are simulated, not verified delivery claims."
+  },
+  "federal-school-connectivity": {
+    title: "End estimated electricity billing",
+    quote: "Require electricity bills to be meter-based and ensure new grid connections are metered before activation.",
+    sector: "Infrastructure", sourcePage: "Manifesto pp. 30–31", target: "Properly meter all electricity connections in the shortest possible timeframe.",
+    why: "The metering commitment is paraphrased from the manifesto. The Not Started status and 0% figure are simulated, not a verified assessment."
+  }
+};
+for (const [slug, details] of Object.entries(manifestoPromises)) {
+  const record = promises.find(item => item.slug === slug);
+  if (record) Object.assign(record, manifestoSource, details);
+}
 
 export function getPromise(slug:string){return promises.find(p=>p.slug===slug)}
 export function getProject(slug:string){return projects.find(p=>p.slug===slug)}

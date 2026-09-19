@@ -26,4 +26,9 @@ for (const promise of promises) {
 }
 assert.ok(promises.some(p => p.origin === "sourced"));
 assert.ok(promises.some(p => p.origin === "simulated"));
+for (const slug of ["president", "vice-president"]) {
+  const records = getRepresentativePromises(slug);
+  assert.equal(records.length, 5);
+  assert.ok(records.every(p => p.origin === "sourced" && p.sourcePage && p.sourceUrl));
+}
 console.log(promises.length + " unique promises; content integrity checks passed.");

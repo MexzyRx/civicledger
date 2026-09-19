@@ -48,7 +48,7 @@ npm run build
 
 Seed data lives in `lib/data.ts` and `lib/demo-promises.ts`: 30 unique commitments across all ten officials, with 4–6 promises per profile. Joint-ticket promises are shared, not duplicated.
 
-Two federal commitments are paraphrased from the [APC Renewed Hope manifesto](https://www.apc.com.ng/img/apc_renewed_hope.pdf). The remaining commitments are illustrative campaign scenarios, not actual statements attributable to the named officials. **All fulfilment statuses, progress figures and project evidence descriptions are simulated.** Confidence is Unrated throughout. Each profile and promise labels these distinctions locally; there is no global warning banner.
+The five commitments on the President and Vice President profiles are paraphrased from the [APC Renewed Hope manifesto](https://www.apc.com.ng/img/apc_renewed_hope.pdf), with printed-page references stored on each record. The remaining commitments are illustrative campaign scenarios, not actual statements attributable to the named officials. **All fulfilment statuses, progress figures and project evidence descriptions are simulated.** Confidence is Unrated throughout. Each profile and promise labels these distinctions locally; there is no global warning banner.
 
 Profile fulfilment rate is completed promises divided by all tracked promises. Average simulated progress is a separate measure, not a political rating. Verify every official’s content and all links with `node scripts/check-content.cjs`.
 

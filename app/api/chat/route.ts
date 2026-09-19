@@ -4,7 +4,7 @@ import { promises, projects } from "@/lib/data";
 type ChatMessage = { role: "user" | "assistant"; content: string };
 
 const civicContext = JSON.stringify({
-  promises: promises.map(({ slug, title, quote, sector, level, leader, location, status, confidence, progress, why, projectSlugs, change, origin, target, sourceUrl, officialSlugs }) => ({ slug, title, quote, sector, level, leader, location, status, confidence, progress, why, projectSlugs, change, origin, target, sourceUrl, officialSlugs })),
+  promises: promises.map(({ slug, title, quote, sector, level, leader, location, status, confidence, progress, why, projectSlugs, change, origin, target, sourceUrl, sourcePage, officialSlugs }) => ({ slug, title, quote, sector, level, leader, location, status, confidence, progress, why, projectSlugs, change, origin, target, sourceUrl, sourcePage, officialSlugs })),
   projects: projects.map(({ slug, name, description, location, status, promiseSlug, unpromised, progress, budget, fundedBy, implementedBy, contractor, evidence }) => ({ slug, name, description, location, status, promiseSlug, unpromised, progress, budget, fundedBy, implementedBy, contractor, evidence })),
 });
 
