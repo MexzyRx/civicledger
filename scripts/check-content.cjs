@@ -26,6 +26,16 @@ for (const promise of promises) {
 }
 assert.ok(promises.some(p => p.origin === "sourced"));
 assert.ok(promises.some(p => p.origin === "simulated"));
+const expectedOfficials = {
+  "ph-state-assembly": ["Hon. Solomon Wami", "Port Harcourt State Constituency I", "/officials/solomon-wami.jpeg"],
+  "ph-chairman": ["Allwell Ihunda", "Port Harcourt City LGA", "/officials/allwell-ihunda.png"],
+  "ph-vice-chairman": ["Tom Quinn Mina Mildred", "Port Harcourt City LGA", "/officials/tom-quinn-mina-mildred.png"],
+  "ward-6-councillor": ["Hon. Johnbull Damiete", "Ward 6, Port Harcourt City", "/officials/johnbull-damiete.jpg"]
+};
+for (const [slug, [name, jurisdiction, image]] of Object.entries(expectedOfficials)) {
+  const official = representatives.find(r => r.slug === slug);
+  assert.deepEqual([official?.name, official?.jurisdiction, official?.image], [name, jurisdiction, image]);
+}
 for (const slug of ["president", "vice-president"]) {
   const records = getRepresentativePromises(slug);
   assert.equal(records.length, 5);

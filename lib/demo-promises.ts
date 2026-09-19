@@ -334,8 +334,8 @@ export const demoPromises: PromiseRecord[] = [
       "ph-state-assembly"
     ],
     "level": "State",
-    "leader": "Demo State Assembly representative",
-    "location": "Port Harcourt State Constituency II",
+    "leader": "Hon. Solomon Wami",
+    "location": "Port Harcourt State Constituency I",
     "source": "Simulated campaign scenario",
     "sourceUrl": "",
     "published": "Not a historical statement",
@@ -357,8 +357,8 @@ export const demoPromises: PromiseRecord[] = [
       "ph-state-assembly"
     ],
     "level": "State",
-    "leader": "Demo State Assembly representative",
-    "location": "Port Harcourt State Constituency II",
+    "leader": "Hon. Solomon Wami",
+    "location": "Port Harcourt State Constituency I",
     "source": "Simulated campaign scenario",
     "sourceUrl": "",
     "published": "Not a historical statement",
@@ -380,8 +380,8 @@ export const demoPromises: PromiseRecord[] = [
       "ph-state-assembly"
     ],
     "level": "State",
-    "leader": "Demo State Assembly representative",
-    "location": "Port Harcourt State Constituency II",
+    "leader": "Hon. Solomon Wami",
+    "location": "Port Harcourt State Constituency I",
     "source": "Simulated campaign scenario",
     "sourceUrl": "",
     "published": "Not a historical statement",
@@ -403,8 +403,8 @@ export const demoPromises: PromiseRecord[] = [
       "ph-state-assembly"
     ],
     "level": "State",
-    "leader": "Demo State Assembly representative",
-    "location": "Port Harcourt State Constituency II",
+    "leader": "Hon. Solomon Wami",
+    "location": "Port Harcourt State Constituency I",
     "source": "Simulated campaign scenario",
     "sourceUrl": "",
     "published": "Not a historical statement",
@@ -498,7 +498,7 @@ export const demoPromises: PromiseRecord[] = [
       "ward-6-councillor"
     ],
     "level": "Local",
-    "leader": "Demo Ward 6 councillor",
+    "leader": "Hon. Johnbull Damiete",
     "location": "Ward 6, Port Harcourt City",
     "source": "Simulated campaign scenario",
     "sourceUrl": "",
@@ -521,7 +521,7 @@ export const demoPromises: PromiseRecord[] = [
       "ward-6-councillor"
     ],
     "level": "Local",
-    "leader": "Demo Ward 6 councillor",
+    "leader": "Hon. Johnbull Damiete",
     "location": "Ward 6, Port Harcourt City",
     "source": "Simulated campaign scenario",
     "sourceUrl": "",
@@ -544,7 +544,7 @@ export const demoPromises: PromiseRecord[] = [
       "ward-6-councillor"
     ],
     "level": "Local",
-    "leader": "Demo Ward 6 councillor",
+    "leader": "Hon. Johnbull Damiete",
     "location": "Ward 6, Port Harcourt City",
     "source": "Simulated campaign scenario",
     "sourceUrl": "",
@@ -556,4 +556,3 @@ export const demoPromises: PromiseRecord[] = [
     "projectSlugs": []
   }
 ];
-
