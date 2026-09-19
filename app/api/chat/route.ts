@@ -40,7 +40,10 @@ export async function POST(request: Request) {
         },
       },
       messages,
-      maxOutputTokens: 240,
+      maxOutputTokens: 500,
+      providerOptions: {
+        anthropic: { effort: "low" },
+      },
     });
     return Response.json({ answer: text, mode: "ai" });
   } catch (error) {
