@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Breadcrumbs, PromiseCard, StatusPill } from "@/components/ui";
+import { Breadcrumbs, OfficialPortrait, PromiseCard, StatusPill } from "@/components/ui";
 import { getRepresentative, getRepresentativePromises, Status } from "@/lib/data";
 import "./content.css";
 
@@ -16,7 +16,7 @@ export default async function RepresentativeDetail({params}:{params:Promise<{slu
   const average=records.length?Math.round(records.reduce((sum,p)=>sum+p.progress,0)/records.length):0;
   return <div className="page narrow representative-detail">
     <Breadcrumbs items={[{label:"My Area",href:"/my-area"},{label:"Representatives",href:"/representatives"},{label:representative.name}]}/>
-    <section className="official-header"><div className={`portrait large level-${representative.level.toLowerCase()}`} aria-hidden="true"><span>{representative.initials}</span></div><div><span className="kicker">{representative.level} government · {representative.role}</span><h1>{representative.name}</h1><p>{representative.jurisdiction}</p><div className="official-meta"><span>{representative.party}</span><span>{representative.term}</span><span>{records.length} promises tracked</span></div></div></section>
+    <section className="official-header"><OfficialPortrait representative={representative} large/><div><span className="kicker">{representative.level} government · {representative.role}</span><h1>{representative.name}</h1><p>{representative.jurisdiction}</p><div className="official-meta"><span>{representative.party}</span><span>{representative.term}</span><span>{records.length} promises tracked</span></div></div></section>
     <div className="demo-disclosure"><strong>Explore an illustrative delivery record</strong><p>Campaign scenarios and all fulfilment figures are simulated. Any sourced public commitment is labelled separately. These figures are not verified ratings of the official.</p>{representative.pairedWith&&<p>Joint-ticket commitments are shared with the counterpart, not counted as separate promises across the platform.</p>}</div>
     <div className="profile-stats" aria-label="Simulated fulfilment statistics">{[[records.length,"Promises tracked"],[completed,"Completed"],[ongoing,"In progress"],[`${fulfilment}%`,"Fulfilment rate"]].map(([value,label])=><div className="panel" key={label}><strong>{value}</strong><span>{label}</span></div>)}</div>
     <div className="detail-grid"><main>
